@@ -41,6 +41,4 @@ public class NoteController {
             @Valid @RequestBody NoteRequestDto requestDto ) {
         return ResponseEntity.ok(noteService.updateNote(id, requestDto));
     }
-
-
 }
