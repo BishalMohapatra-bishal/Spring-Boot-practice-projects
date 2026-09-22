@@ -17,5 +17,6 @@ public record NoteRequestDto(
         String categoryName,
 
         Set<String> tagNames
+
 ) {
 }
