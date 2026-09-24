@@ -3,9 +3,11 @@ package com.GlobalExceptionDemo.GlobalExceptionDemo.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+@Builder
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
@@ -24,4 +26,8 @@ public class Customer {
 
     @Column(nullable = false)
     private String phoneNumber;
+
+    @OneToOne
+    @JoinColumn(name = "cart_id")
+    private Cart cart;
 }
