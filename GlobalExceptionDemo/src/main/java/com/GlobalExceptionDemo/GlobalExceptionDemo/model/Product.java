@@ -23,10 +23,7 @@ public class Product {
     @Column(nullable = false)
     private Boolean price;
 
-    @Column(nullable = false)
-    private String description;
-
-    @ManyToOne
-    @JoinColumn(name = "seller_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "seller_id", nullable = false)
     private Seller seller;
 }
