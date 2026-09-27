@@ -28,7 +28,13 @@ public class Customer {
     @Column(nullable = false)
     private String phoneNumber;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "cart_id")
+    @OneToOne(mappedBy = "customer_id", cascade = CascadeType.ALL,fetch = FetchType.LAZY)
     private Cart cart;
+
+    public void setCart(Cart cart) {
+        this.cart = cart;
+        if (cart != null) {
+            cart.setCustomer(this);
+        }
+    }
 }
