@@ -6,6 +6,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Builder
 @AllArgsConstructor
@@ -18,12 +21,13 @@ public class Seller {
     private Long id;
 
     @Column(nullable = false)
-    private String name;
+    private String storeName;
 
-    @Column(nullable = false)
-    private String productName;
+    @OneToMany(mappedBy = "seller", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Product> products = new ArrayList<>();
 
-//    @OneToMany
-//
-//    private Product product;
+    public void addProduct(Product product) {
+        products.add(product);
+        product.setSeller(this);
+    }
 }
