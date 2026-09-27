@@ -11,20 +11,23 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class Cart_item {
+public class CartItem {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "cart_Id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "cart_Id", nullable = false)
     private Cart cart;
 
-    @ManyToOne
-    @JoinColumn(name = "product_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
     @Column(nullable = false)
     private Integer quantity;
 }
+
+//why we cant add the quantity to the cart entity it self
+//9078079577
