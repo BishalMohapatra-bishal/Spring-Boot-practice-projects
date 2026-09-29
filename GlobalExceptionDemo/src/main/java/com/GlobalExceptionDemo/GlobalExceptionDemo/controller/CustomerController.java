@@ -21,7 +21,7 @@ public class CustomerController {
     @PostMapping
     public ResponseEntity<CustomerResponseDto> createCustomer(
             @Valid @RequestBody CustomerRequestDto customerRequestDto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(customerService.creteCustomer(customerRequestDto));
+        return ResponseEntity.status(HttpStatus.CREATED).body(customerService.createCustomer(customerRequestDto));
     }
 
     @PatchMapping("/{id}")
