@@ -2,11 +2,13 @@ package com.GlobalExceptionDemo.GlobalExceptionDemo.service;
 
 import com.GlobalExceptionDemo.GlobalExceptionDemo.dto.CustomerRequestDto;
 import com.GlobalExceptionDemo.GlobalExceptionDemo.dto.CustomerResponseDto;
+import com.GlobalExceptionDemo.GlobalExceptionDemo.model.Cart;
 import com.GlobalExceptionDemo.GlobalExceptionDemo.model.Customer;
 import com.GlobalExceptionDemo.GlobalExceptionDemo.repository.CustomerRepository;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -18,20 +20,33 @@ public class CustomerService {
 
     private final CustomerRepository customerRepository;
 
-    public CustomerResponseDto creteCustomer(CustomerRequestDto customerRequestDto) {
-        Customer saveCustomer = customerRepository.save(dtoToEntity(customerRequestDto));
+    @Transactional
+    public CustomerResponseDto createCustomer(CustomerRequestDto customerRequestDto) {
+        Customer savedCustomer = dtoToEntity(customerRequestDto);
+
+        Cart cart = new Cart();
+        cart.setCustomer(savedCustomer);
+        savedCustomer.setCart(cart);
+
+        Customer saveCustomer = customerRepository.save(savedCustomer);
         return entityToDto(saveCustomer);
     }
 
+    @Transactional
     public CustomerResponseDto updateCustomer(Long id, CustomerRequestDto customerRequestDto) {
-        Customer updateCustomer = customerRepository.findById(id).
+        Customer existingCustomer = customerRepository.findById(id).
                 orElseThrow(() -> new NoSuchElementException("No customer exist with id " + id));
 
-        Customer updatedCustomer = customerRepository.save(dtoToEntity(customerRequestDto));
+        existingCustomer.setName(customerRequestDto.name());
+        existingCustomer.setEmail(customerRequestDto.email());
+        existingCustomer.setPhoneNumber(customerRequestDto.phoneNumber());
+
+        Customer updatedCustomer = customerRepository.save(existingCustomer);
         return entityToDto(updatedCustomer);
 
     }
 
+    @Transactional(readOnly = true)
     public CustomerResponseDto getCustomerById(Long id) {
         Customer getCustomer = customerRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("No Customer found with is " + id));
@@ -39,6 +54,7 @@ public class CustomerService {
         return entityToDto(getCustomer);
     }
 
+    @Transactional(readOnly = true)
     public List<CustomerResponseDto> getAllCustomers() {
         List<Customer> customerList = customerRepository.findAll();
         return customerList.stream().map(CustomerService::entityToDto).collect(Collectors.toList());
@@ -57,7 +73,8 @@ public class CustomerService {
                 customer.getId(),
                 customer.getName(),
                 customer.getEmail(),
-                customer.getPhoneNumber()
+                customer.getPhoneNumber(),
+                customer.getCart() != null ? CartService.mapToCartDto(customer.getCart()) : null
         );
     }
     private static Customer dtoToEntity(CustomerRequestDto requestDto) {
