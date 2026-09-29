@@ -5,6 +5,6 @@ public record CustomerResponseDto(
         String name,
         String email,
         String phoneNumber,
-        CartResponseDto cart
+        CartResponseDto cartResponseDto
 ) {
 }
