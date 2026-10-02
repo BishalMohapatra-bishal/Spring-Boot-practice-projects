@@ -5,7 +5,6 @@ import com.GlobalExceptionDemo.GlobalExceptionDemo.dto.CustomerResponseDto;
 import com.GlobalExceptionDemo.GlobalExceptionDemo.model.Cart;
 import com.GlobalExceptionDemo.GlobalExceptionDemo.model.Customer;
 import com.GlobalExceptionDemo.GlobalExceptionDemo.repository.CustomerRepository;
-import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -74,7 +73,7 @@ public class CustomerService {
                 customer.getName(),
                 customer.getEmail(),
                 customer.getPhoneNumber(),
-                customer.getCart() != null ? CartService.mapToCartDto(customer.getCart()) : null
+                customer.getCart() != null ? CartService.mapToCartResponseDto(customer.getCart()) : null
         );
     }
     private static Customer dtoToEntity(CustomerRequestDto requestDto) {
