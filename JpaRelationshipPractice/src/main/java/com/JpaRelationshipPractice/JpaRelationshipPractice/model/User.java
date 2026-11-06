@@ -1,17 +1,18 @@
 package com.JpaRelationshipPractice.JpaRelationshipPractice.model;
 
+import com.JpaRelationshipPractice.JpaRelationshipPractice.enums.Role;
+import com.JpaRelationshipPractice.JpaRelationshipPractice.enums.UserStatus;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Getter
 @Setter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class User {
@@ -24,16 +25,19 @@ public class User {
 
     private String password;
 
-//    @OneToOne(
-//            mappedBy = "user",
-//            cascade = CascadeType.ALL,
-//            orphanRemoval = true
-//    )
+    @Enumerated(EnumType.STRING)
+    private Role role;
 
-    @OneToOne(mappedBy = "user",
+    @Enumerated(EnumType.STRING)
+    private UserStatus status;
+
+    private LocalDateTime createdAt;
+
+    @OneToOne(
+            mappedBy = "user",
             cascade = CascadeType.ALL,
-            fetch = FetchType.LAZY,
-            optional = false)
+            orphanRemoval = true
+    )
     private UserProfile profile;
 
     @OneToMany(
