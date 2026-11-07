@@ -1,5 +1,6 @@
 package com.JpaRelationshipPractice.JpaRelationshipPractice.model;
 
+import com.JpaRelationshipPractice.JpaRelationshipPractice.enums.RecordStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -22,7 +23,8 @@ public class Records {
     private LocalDateTime dueDate;
     private LocalDateTime returnedDate;
 
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private RecordStatus status;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
