@@ -51,6 +51,10 @@ public class Books {
     )
     private Set<Author> authors = new HashSet<>();
 
+//    public void setAuthor(Author author) {
+//        this.authors = author;
+//    }
+
     // One-to-Many with Records (Borrowing transactions)
     @OneToMany(mappedBy = "book", cascade = CascadeType.ALL)
     private Set<Records> records = new HashSet<>();
