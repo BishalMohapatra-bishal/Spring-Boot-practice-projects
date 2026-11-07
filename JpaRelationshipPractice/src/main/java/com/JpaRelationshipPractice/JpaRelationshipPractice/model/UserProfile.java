@@ -28,4 +28,9 @@ public class UserProfile {
     @MapsId
     @JoinColumn(name = "user_id")
     private User user;
+//------------------------------------------------------------------write the helper methods if needed
+//    public void setUser(User user) {
+//        this.user = user;
+//        user.setProfile(user.getProfile());
+//    }
 }
