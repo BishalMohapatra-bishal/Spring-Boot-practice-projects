@@ -1,7 +1,6 @@
 package com.JpaRelationshipPractice.JpaRelationshipPractice.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.ManyToMany;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,6 +17,8 @@ import java.util.Set;
 @AllArgsConstructor
 public class Author {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String name;
