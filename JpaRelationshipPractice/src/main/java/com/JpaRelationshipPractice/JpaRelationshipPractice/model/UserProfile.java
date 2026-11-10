@@ -28,9 +28,11 @@ public class UserProfile {
     @MapsId
     @JoinColumn(name = "user_id")
     private User user;
-//------------------------------------------------------------------write the helper methods if needed
+    // --- OPTIONAL HELPER METHOD FOR USERPROFILE ---
 //    public void setUser(User user) {
 //        this.user = user;
-//        user.setProfile(user.getProfile());
+//        if (user != null && user.getProfile() != this) {
+//            user.setProfile(this); // Safely syncs the other side without infinite loops
+//        }
 //    }
 }
