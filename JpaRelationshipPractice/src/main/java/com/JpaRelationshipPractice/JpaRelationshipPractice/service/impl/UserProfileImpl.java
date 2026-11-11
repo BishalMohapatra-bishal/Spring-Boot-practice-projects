@@ -22,18 +22,29 @@ public class UserProfileImpl implements UserProfileService {
 
     @Override
     public UserResponseDto registerUser(UserRegistrationRequestDto dto) {
-        User newUser = new User();
-        newUser.setEmail(dto.email());
-        newUser.setPassword(dto.password());
-        newUser.setRole(Role.MEMBER);
-        newUser.setStatus(UserStatus.ACTIVE);
-        newUser.setCreatedAt(LocalDateTime.now());
+        User newUser = new User().builder()
+                                 .email(dto.email())
+                                 .password(dto.password())
+                                 .role(Role.MEMBER)
+                                 .status(UserStatus.ACTIVE)
+                                 .createdAt(LocalDateTime.now())
+                                 .build();
+//        newUser.setEmail(dto.email());
+//        newUser.setPassword(dto.password());
+//        newUser.setRole(Role.MEMBER);
+//        newUser.setStatus(UserStatus.ACTIVE);
+//        newUser.setCreatedAt(LocalDateTime.now());
 
-        UserProfile profile = new UserProfile();
-        profile.setFirstName(dto.firstName());
-        profile.setLastName(dto.lastName());
-        profile.setPhoneNumber(dto.phoneNumber());
-        profile.setAddress(dto.address());
+        UserProfile profile = new UserProfile().builder()
+                                               .firstName(dto.firstName())
+                                               .lastName(dto.lastName())
+                                               .phoneNumber(dto.phoneNumber())
+                                               .address(dto.address())
+                                               .build();
+//        profile.setFirstName(dto.firstName());
+//        profile.setLastName(dto.lastName());
+//        profile.setPhoneNumber(dto.phoneNumber());
+//        profile.setAddress(dto.address());
 
         newUser.assignProfile(profile);
 //        profileRepository.save(profile);
@@ -48,6 +59,11 @@ public class UserProfileImpl implements UserProfileService {
                                                    profile.getLastName(),
                                                    profile.getPhoneNumber(),
                                                    profile.getAddress()));
+    }
 
+    public UserResponseDto getUserProfileById(Long id) {
+        User user = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("No user found with id : " + id));
+        return null;
     }
 }
