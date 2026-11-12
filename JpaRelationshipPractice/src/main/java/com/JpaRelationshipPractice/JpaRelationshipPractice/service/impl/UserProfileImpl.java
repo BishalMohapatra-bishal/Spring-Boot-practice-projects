@@ -4,6 +4,7 @@ import com.JpaRelationshipPractice.JpaRelationshipPractice.dto.UserRegistrationR
 import com.JpaRelationshipPractice.JpaRelationshipPractice.dto.UserResponseDto;
 import com.JpaRelationshipPractice.JpaRelationshipPractice.enums.Role;
 import com.JpaRelationshipPractice.JpaRelationshipPractice.enums.UserStatus;
+import com.JpaRelationshipPractice.JpaRelationshipPractice.exception.UserNotFoundException;
 import com.JpaRelationshipPractice.JpaRelationshipPractice.model.User;
 import com.JpaRelationshipPractice.JpaRelationshipPractice.model.UserProfile;
 import com.JpaRelationshipPractice.JpaRelationshipPractice.repository.UserProfileRepository;
@@ -64,6 +65,56 @@ public class UserProfileImpl implements UserProfileService {
     public UserResponseDto getUserProfileById(Long id) {
         User user = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("No user found with id : " + id));
+
+        return new UserResponseDto(user.getId(),
+                user.getEmail(),
+                user.getRole(),
+                user.getStatus(),
+                new UserResponseDto.UserProfileDto(user.getProfile().getFirstName(),
+                        user.getProfile().getLastName(),
+                        user.getProfile().getPhoneNumber(),
+                        user.getProfile().getAddress()));
+    }
+
+    public UserResponseDto updateUserProfile(Long id, UserRegistrationRequestDto requestDto) {
+
+        User existUser = repository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("No user found with id: " + id));
+
+        existUser.setEmail(requestDto.email());
+        existUser.setPassword(requestDto.password());
+
+        if (existUser.getProfile() != null) {
+            existUser.getProfile().builder()
+                    .firstName(requestDto.firstName())
+                    .lastName(requestDto.lastName())
+                    .phoneNumber(requestDto.phoneNumber())
+                    .address(requestDto.address())
+                    .build();
+        }
+
         return null;
+    }
+
+    private UserResponseDto entityToDto(User user) {
+        // 1. Safely map the profile if it exists
+        UserResponseDto.UserProfileDto profileDto = null;
+        if (user.getProfile() != null) {
+            profileDto = new UserResponseDto.UserProfileDto(
+                    user.getProfile().getFirstName(),
+                    user.getProfile().getLastName(),
+                    user.getProfile().getPhoneNumber(),
+                    user.getProfile().getAddress()
+            );
+        }
+
+        // 2. Return the combined UserResponseDto
+        return new UserResponseDto(
+                user.getId(),
+                user.getEmail(),
+                user.getRole(),
+                user.getStatus(),
+                profileDto
+        );
     }
 }
