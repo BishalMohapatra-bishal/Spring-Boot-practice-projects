@@ -14,6 +14,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class UserProfileImpl implements UserProfileService {
@@ -23,25 +25,25 @@ public class UserProfileImpl implements UserProfileService {
 
     @Override
     public UserResponseDto registerUser(UserRegistrationRequestDto dto) {
-        User newUser = new User().builder()
-                                 .email(dto.email())
-                                 .password(dto.password())
-                                 .role(Role.MEMBER)
-                                 .status(UserStatus.ACTIVE)
-                                 .createdAt(LocalDateTime.now())
-                                 .build();
+        User newUser = User.builder()
+                .email(dto.email())
+                .password(dto.password())
+                .role(Role.MEMBER)
+                .status(UserStatus.ACTIVE)
+                .createdAt(LocalDateTime.now())
+                .build();
 //        newUser.setEmail(dto.email());
 //        newUser.setPassword(dto.password());
 //        newUser.setRole(Role.MEMBER);
 //        newUser.setStatus(UserStatus.ACTIVE);
 //        newUser.setCreatedAt(LocalDateTime.now());
 
-        UserProfile profile = new UserProfile().builder()
-                                               .firstName(dto.firstName())
-                                               .lastName(dto.lastName())
-                                               .phoneNumber(dto.phoneNumber())
-                                               .address(dto.address())
-                                               .build();
+        UserProfile profile = UserProfile.builder()
+                .firstName(dto.firstName())
+                .lastName(dto.lastName())
+                .phoneNumber(dto.phoneNumber())
+                .address(dto.address())
+                .build();
 //        profile.setFirstName(dto.firstName());
 //        profile.setLastName(dto.lastName());
 //        profile.setPhoneNumber(dto.phoneNumber());
@@ -51,29 +53,7 @@ public class UserProfileImpl implements UserProfileService {
 //        profileRepository.save(profile);
         repository.save(newUser);
 
-        return new UserResponseDto(newUser.getId(),
-                                   newUser.getEmail(),
-                                   newUser.getRole(),
-                                   newUser.getStatus(),
-
-                new UserResponseDto.UserProfileDto(profile.getFirstName(),
-                                                   profile.getLastName(),
-                                                   profile.getPhoneNumber(),
-                                                   profile.getAddress()));
-    }
-
-    public UserResponseDto getUserProfileById(Long id) {
-        User user = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("No user found with id : " + id));
-
-        return new UserResponseDto(user.getId(),
-                user.getEmail(),
-                user.getRole(),
-                user.getStatus(),
-                new UserResponseDto.UserProfileDto(user.getProfile().getFirstName(),
-                        user.getProfile().getLastName(),
-                        user.getProfile().getPhoneNumber(),
-                        user.getProfile().getAddress()));
+        return entityToDto(newUser);
     }
 
     public UserResponseDto updateUserProfile(Long id, UserRegistrationRequestDto requestDto) {
@@ -81,21 +61,58 @@ public class UserProfileImpl implements UserProfileService {
         User existUser = repository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("No user found with id: " + id));
 
+        // Update User fields
         existUser.setEmail(requestDto.email());
-        existUser.setPassword(requestDto.password());
+        existUser.setPassword(requestDto.password()); // Remember to encode this later when you add security!
 
-        if (existUser.getProfile() != null) {
-            existUser.getProfile().builder()
+        // Update UserProfile fields using standard setters
+        UserProfile profile = existUser.getProfile();
+        if (profile != null) {
+            profile.setFirstName(requestDto.firstName());
+            profile.setLastName(requestDto.lastName());
+            profile.setPhoneNumber(requestDto.phoneNumber());
+            profile.setAddress(requestDto.address());
+        } else {
+            // Edge case safety: If somehow the user didn't have a profile, create one
+            UserProfile newProfile = UserProfile.builder()
                     .firstName(requestDto.firstName())
                     .lastName(requestDto.lastName())
                     .phoneNumber(requestDto.phoneNumber())
                     .address(requestDto.address())
                     .build();
+            existUser.assignProfile(newProfile);
         }
 
-        return null;
+        // Save the updated user (Cascade will update the profile too)
+        User savedUser = repository.save(existUser);
+
+        return entityToDto(savedUser);
     }
 
+    public UserResponseDto getUserProfileById(Long id) {
+        User user = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("No user found with id : " + id));
+
+        return entityToDto(user);
+    }
+
+    public List<UserResponseDto> getAllUserAndProfile() {
+
+        List<User> allUsers = repository.findAll();
+
+        return allUsers.stream().map(this::entityToDto).toList();
+    }
+
+    public void deleteUserById(Long id) {
+        User deleteUser = repository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("No user found with id: " + id));
+
+        repository.delete(deleteUser);
+    }
+
+    public void deleteAllUsers() {
+        repository.deleteAll();
+    }
     private UserResponseDto entityToDto(User user) {
         // 1. Safely map the profile if it exists
         UserResponseDto.UserProfileDto profileDto = null;
@@ -107,7 +124,6 @@ public class UserProfileImpl implements UserProfileService {
                     user.getProfile().getAddress()
             );
         }
-
         // 2. Return the combined UserResponseDto
         return new UserResponseDto(
                 user.getId(),
