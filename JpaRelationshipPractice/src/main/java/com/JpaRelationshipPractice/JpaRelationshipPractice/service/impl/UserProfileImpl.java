@@ -20,7 +20,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserProfileImpl implements UserProfileService {
 
-    private final UserProfileRepository profileRepository;
+//    private final UserProfileRepository profileRepository;
     private final UserRepository repository;
 
     @Override
@@ -56,16 +56,15 @@ public class UserProfileImpl implements UserProfileService {
         return entityToDto(newUser);
     }
 
+    @Override
     public UserResponseDto updateUserProfile(Long id, UserRegistrationRequestDto requestDto) {
 
         User existUser = repository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("No user found with id: " + id));
 
-        // Update User fields
         existUser.setEmail(requestDto.email());
         existUser.setPassword(requestDto.password()); // Remember to encode this later when you add security!
 
-        // Update UserProfile fields using standard setters
         UserProfile profile = existUser.getProfile();
         if (profile != null) {
             profile.setFirstName(requestDto.firstName());
@@ -73,7 +72,7 @@ public class UserProfileImpl implements UserProfileService {
             profile.setPhoneNumber(requestDto.phoneNumber());
             profile.setAddress(requestDto.address());
         } else {
-            // Edge case safety: If somehow the user didn't have a profile, create one
+//            if the user dont have a exist profile then it will create one
             UserProfile newProfile = UserProfile.builder()
                     .firstName(requestDto.firstName())
                     .lastName(requestDto.lastName())
@@ -83,19 +82,28 @@ public class UserProfileImpl implements UserProfileService {
             existUser.assignProfile(newProfile);
         }
 
-        // Save the updated user (Cascade will update the profile too)
+//         Save the updated user (Cascade will update the profile too)
         User savedUser = repository.save(existUser);
 
         return entityToDto(savedUser);
     }
 
+    @Override
+    public UserResponseDto getUserByEmail(String email) {
+        User user = repository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("No user exist with email: " + email));
+        return entityToDto(user);
+    }
+
+    @Override
     public UserResponseDto getUserProfileById(Long id) {
         User user = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("No user found with id : " + id));
+                .orElseThrow(() -> new UserNotFoundException("No user found with id : " + id));
 
         return entityToDto(user);
     }
 
+    @Override
     public List<UserResponseDto> getAllUserAndProfile() {
 
         List<User> allUsers = repository.findAll();
@@ -103,6 +111,7 @@ public class UserProfileImpl implements UserProfileService {
         return allUsers.stream().map(this::entityToDto).toList();
     }
 
+    @Override
     public void deleteUserById(Long id) {
         User deleteUser = repository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("No user found with id: " + id));
@@ -110,11 +119,11 @@ public class UserProfileImpl implements UserProfileService {
         repository.delete(deleteUser);
     }
 
+    @Override
     public void deleteAllUsers() {
         repository.deleteAll();
     }
     private UserResponseDto entityToDto(User user) {
-        // 1. Safely map the profile if it exists
         UserResponseDto.UserProfileDto profileDto = null;
         if (user.getProfile() != null) {
             profileDto = new UserResponseDto.UserProfileDto(
@@ -124,7 +133,6 @@ public class UserProfileImpl implements UserProfileService {
                     user.getProfile().getAddress()
             );
         }
-        // 2. Return the combined UserResponseDto
         return new UserResponseDto(
                 user.getId(),
                 user.getEmail(),
