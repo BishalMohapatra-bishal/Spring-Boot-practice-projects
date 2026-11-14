@@ -10,11 +10,13 @@ public interface UserProfileService {
 
     UserResponseDto updateUserProfile(Long id, UserRegistrationRequestDto requestDto);
 
+    UserResponseDto getUserByEmail(String email);
+
     UserResponseDto getUserProfileById(Long id);
 
     List<UserResponseDto> getAllUserAndProfile();
 
-    public void deleteUserById(Long id);
+    void deleteUserById(Long id);
 
-    public void deleteAllUsers();
+    void deleteAllUsers();
 }
